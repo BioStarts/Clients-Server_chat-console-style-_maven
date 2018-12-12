@@ -1,0 +1,22 @@
+.button{
+  -fx-font-family: Consolas;
+}
+.button:hover{
+    -fx-background-color: linear-gradient(#f0ff05 0%, #00ff02 20%, #00ff03 50%, #00ff04 55%, #f0ff05 100%);
+}
+.text-area {
+  -fx-font-family: Consolas;
+  -fx-highlight-fill: #00ff00;
+  -fx-highlight-text-fill: #000000;
+  -fx-text-fill: #00ff00;
+}
+.text-area .content{
+      -fx-background-color: black;
+  }
+.text-field{
+-fx-font-family: Consolas;
+-fx-text-alignment: center;
+-fx-animated: false;
+-fx-graphic-text-gap: 4;
+-fx-collapsible: false;
+}
