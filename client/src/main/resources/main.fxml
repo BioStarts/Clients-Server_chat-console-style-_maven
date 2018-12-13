@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <VBox fx:controller="com.geekbrains.client.Controller"
       xmlns:fx="http://javafx.com/fxml" alignment="center" stylesheets="@style">
-    <TextArea fx:id="Print" VBox.vgrow="ALWAYS" editable="false"></TextArea>
+    <TextArea fx:id="textArea" VBox.vgrow="ALWAYS" editable="false"></TextArea>
     <HBox>
         <TextField fx:id="msgField" promptText="Введите текс сообщения" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#sendMsg"/>
         <Button fx:id="btn" text="Отправить" onAction="#sendMsg"/>

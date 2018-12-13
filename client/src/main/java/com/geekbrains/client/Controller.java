@@ -19,7 +19,7 @@ public class Controller implements Initializable {
     TextField msgField;
 
     @FXML
-    TextArea Print;
+    TextArea textArea;
 
     private Socket socket;
     private DataInputStream in;
@@ -28,9 +28,39 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            socket = new Socket("localhost",8189);
+            socket = new Socket("localhost", 8189);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (true) {
+                            String msg = null;
+                            msg = in.readUTF();
+                            textArea.appendText(msg + "\n");
+                        }
+                    } catch (IOException e){
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
