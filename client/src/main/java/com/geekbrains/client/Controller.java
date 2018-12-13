@@ -31,36 +31,20 @@ public class Controller implements Initializable {
             socket = new Socket("localhost", 8189);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            String msg = null;
-                            msg = in.readUTF();
-                            textArea.appendText(msg + "\n");
-                        }
-                    } catch (IOException e){
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            out.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+            Thread t = new Thread(() -> {
+                try {
+                    while (true) {
+                        String msg = in.readUTF();
+                        textArea.appendText(msg + "\n");
                     }
+                } catch (IOException e){
+                    e.printStackTrace();
+                } finally {
+                    closeConnection();
                 }
-            }).start();
+            });
+            t.setDaemon(true);
+            t.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,5 +59,23 @@ public class Controller implements Initializable {
             e.printStackTrace();
         }
 
+    }
+
+    public void closeConnection(){
+        try {
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
