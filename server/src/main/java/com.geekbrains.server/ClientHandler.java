@@ -30,7 +30,7 @@ public class ClientHandler {
                         if (msg.startsWith("/auth ")) {
                             String[] tokens = msg.split("\\s");
                             String nick = server.getAuthService().getNicknameByLoginAndPassword(tokens[1], tokens[2]);
-                            if (nick != null && !server.isNickBusy(nick)){
+                            if (nick != null && !server.isNickBusy(nick)) {
                                 sendMsg("/authok " + nick);
                                 server.subscribe(this); // добавили в список рассылки(subscribe)
                                 nickname = nick;
@@ -43,8 +43,15 @@ public class ClientHandler {
                         if (msg.equals("/end")) {
                             break;
                         }
-                        server.broadcastMsg(nickname + ": " + msg);
-                        System.out.println(msg);
+                        if (msg.startsWith("/w nick")) { //начинаем проверку на приватное сообщение
+                            String fromMsg = msg.substring(msg.indexOf("nick") + 6); // отрезаем лишнюю часть сообщения (после nick)
+                            String privateMsg[] = msg.split("\\s");
+                            String from = privateMsg[1];
+                            server.broadcastFromMsg(nickname + ": " + fromMsg,from);
+                        } else {
+                            server.broadcastMsg(nickname + ": " + msg);
+                            System.out.println(msg);
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -58,7 +65,7 @@ public class ClientHandler {
     }
 
 
-    public void sendMsg(String msg){
+    public void sendMsg(String msg) {
         try {
             out.writeUTF(msg);
         } catch (IOException e) {
@@ -67,7 +74,7 @@ public class ClientHandler {
     }
 
 
-    public void disconnect(){
+    public void disconnect() {
         server.unsubscribe(this); // отключаем клиента от рассылки когда он отваливается
         try {
             in.close();

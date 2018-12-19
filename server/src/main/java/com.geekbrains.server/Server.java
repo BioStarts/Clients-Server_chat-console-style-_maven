@@ -36,6 +36,14 @@ public class Server {
         }
     }
 
+    public void broadcastFromMsg(String msg, String from) { // метод для рассылки приватных сообщений
+        for (ClientHandler o : clients) {
+            if (o.getNickname().equals(from)) {
+                o.sendMsg(msg);
+            }
+        }
+    }
+
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
     }
