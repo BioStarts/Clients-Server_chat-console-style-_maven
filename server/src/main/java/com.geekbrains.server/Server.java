@@ -8,14 +8,20 @@ import java.util.Vector;
 public class Server {
     private Vector<ClientHandler> clients;
 
+    public AuthService getAuthService() {
+        return authService;
+    }
+
+    private AuthService authService;
+
     public Server() {
         clients = new Vector<>();
+        authService = new SimpleAuthService();
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {
                 Socket socket = serverSocket.accept();
-                subscribe(new ClientHandler(this, socket)); //добавили в список рассылки(subscribe) + отдали в клиентхендлер
-                // при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
+                new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
                 System.out.println("Подключился новый клиент");
             }
         } catch (IOException e) {
@@ -36,6 +42,15 @@ public class Server {
 
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+    }
+
+    public boolean isNickBusy(String nickname){
+        for (ClientHandler o : clients){
+            if (o.getNickname().equals(nickname)){
+                return true;
+            }
+        }
+        return false;
     }
 
 
