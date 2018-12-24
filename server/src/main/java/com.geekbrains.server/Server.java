@@ -36,20 +36,29 @@ public class Server {
         }
     }
 
-    public void broadcastFromMsg(String msg, String from) { // метод для рассылки приватных сообщений
+    public void privateMsg(ClientHandler sender, String reciverNick, String msg) { // метод для рассылки приватных сообщений
+        if (sender.getNickname().equals(reciverNick)) { //проверяем совпадают ли ники отправителя и получателя
+            sender.sendMsg("заметка для себя: " + msg);
+            return;
+        }
         for (ClientHandler o : clients) {
-            if (o.getNickname().equals(from)) {
-                o.sendMsg(msg);
+            if (o.getNickname().equals(reciverNick)) {
+                o.sendMsg("от " + sender.getNickname() + ": " + msg);//отправляем сообщение получателю с указанием от кого
+                sender.sendMsg("для " + reciverNick + ": " + msg);//фиксируем сообщение для отправителя - что мол он отправил тому-то
+                return;
             }
         }
+        sender.sendMsg("Клиент " + reciverNick + " не найден");
     }
 
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
+        broadcastClientsList();// обновляем рассылку клиентов при добавлении нового
     }
 
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+        broadcastClientsList();// обновляем рассылку клиентов при выходе клиента из чата
     }
 
     public boolean isNickBusy(String nickname){
@@ -61,5 +70,17 @@ public class Server {
         return false;
     }
 
+    public void broadcastClientsList() {
+        StringBuilder sb = new StringBuilder(15 * clients.size());
+        sb.append("/clients ");
+        for (ClientHandler o : clients) {
+            sb.append(o.getNickname()).append(" ");
+        }
+        sb.setLength(sb.length() - 1); //убираем лишний пробел в конце списка клиентов (который берется из строки выше)
+        String out = sb.toString();
+        for (ClientHandler o : clients) { // рассылаем всем клиентам список клиентов
+            o.sendMsg(out);
+        }
+    }
 
 }

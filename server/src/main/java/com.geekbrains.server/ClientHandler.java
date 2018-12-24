@@ -32,22 +32,22 @@ public class ClientHandler {
                             String nick = server.getAuthService().getNicknameByLoginAndPassword(tokens[1], tokens[2]);
                             if (nick != null && !server.isNickBusy(nick)) {
                                 sendMsg("/authok " + nick);
-                                server.subscribe(this); // добавили в список рассылки(subscribe)
                                 nickname = nick;
+                                server.subscribe(this); // добавили в список рассылки(subscribe)
                                 break;
                             }
                         }
                     }
                     while (true) {
                         String msg = in.readUTF();
-                        if (msg.equals("/end")) {
-                            break;
-                        }
-                        if (msg.startsWith("/w nick")) { //начинаем проверку на приватное сообщение
-                            String fromMsg = msg.substring(msg.indexOf("nick") + 6); // отрезаем лишнюю часть сообщения (после nick)
-                            String privateMsg[] = msg.split("\\s");
-                            String from = privateMsg[1];
-                            server.broadcastFromMsg(nickname + ": " + fromMsg,from);
+                        if (msg.startsWith("/")) {// говорим что если сообщение начинается с/ - значит оно сллужебное и там уже обрабатываем, в зависимости от команды
+                            if (msg.equals("/end")) {
+                                break;
+                            }
+                            if (msg.startsWith("/w ")) { //начинаем проверку на приватное сообщение
+                                String[] tokens = msg.split("\\s", 3); // разбиваем сообщение на 3 части по пробелу
+                                server.privateMsg(this, tokens[1], tokens[2]);
+                            }
                         } else {
                             server.broadcastMsg(nickname + ": " + msg);
                             System.out.println(msg);

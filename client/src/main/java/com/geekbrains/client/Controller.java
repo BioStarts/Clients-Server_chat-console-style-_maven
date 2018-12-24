@@ -1,12 +1,12 @@
 package com.geekbrains.client;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 import java.io.DataInputStream;
@@ -29,6 +29,9 @@ public class Controller implements Initializable {
     @FXML
     PasswordField passField;
 
+    @FXML
+    ListView<String> clientsList;
+
     private boolean authentificated;
     private String nickname;
 
@@ -42,6 +45,8 @@ public class Controller implements Initializable {
         authPanel.setManaged(!authentificated);
         msgPanel.setVisible(authentificated);
         msgPanel.setManaged(authentificated);
+        clientsList.setVisible(authentificated);
+        clientsList.setManaged(authentificated);
         if(!authentificated){
             nickname = ""; // обнуляем ник клиента при разрыве связи
         }
@@ -65,7 +70,19 @@ public class Controller implements Initializable {
                     }
                     while (true) {//все ок мы норм, ждем сообщений
                         String msg = in.readUTF();
-                        textArea.appendText(msg + "\n");
+                        if (msg.startsWith("/")) { //говорим что если летит что-то начинающиеся на / это команда
+                            if (msg.startsWith("/clients ")){
+                                Platform.runLater(() -> {// прокидывает задачу по обновлению списка из этого трэда в трэд javaFX
+                                    clientsList.getItems().clear();//отчистили старый список клиентов
+                                    String[] tokens = msg.split("\\s");//парсим список заполняем массив листа(списка)
+                                    for (int i = 1; i < tokens.length ; i++) {
+                                        clientsList.getItems().add(tokens[i]);
+                                    }
+                                });
+                            }
+                        } else {
+                            textArea.appendText(msg + "\n");
+                        }
                     }
                 } catch (IOException e){
                     e.printStackTrace();
@@ -126,5 +143,14 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setAuthentificated(false);
+        //повешали на список прослушку события что кто-то на него кликает
+        clientsList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2){
+                String nickname = clientsList.getSelectionModel().getSelectedItem();
+                msgField.setText("/w " + nickname + " ");
+                msgField.requestFocus();
+                msgField.selectEnd();
+            }
+        });
     }
 }

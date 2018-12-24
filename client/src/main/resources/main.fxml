@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ListView?>
 <VBox fx:controller="com.geekbrains.client.Controller"
       xmlns:fx="http://javafx.com/fxml" alignment="center" stylesheets="@style">
     <HBox fx:id="authPanel">
@@ -15,7 +16,12 @@
         <PasswordField fx:id="passField" promptText="password" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#sendAuth"/>
         <Button text="Подключиться" HBox.hgrow="ALWAYS" onAction="#sendAuth"/>
     </HBox>
-    <TextArea fx:id="textArea" VBox.vgrow="ALWAYS" editable="false"/>
+
+    <HBox VBox.vgrow="ALWAYS">
+        <TextArea fx:id="textArea" HBox.hgrow="ALWAYS" editable="false"/>
+        <ListView fx:id="clientsList" minWidth="200" maxWidth="200" />
+    </HBox>
+
     <HBox fx:id="msgPanel">
         <TextField fx:id="msgField" promptText="Введите текс сообщения" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#sendMsg"/>
         <Button fx:id="btn" text="Отправить" onAction="#sendMsg"/>
