@@ -83,9 +83,9 @@ public class Controller implements Initializable {
                             if (msg.equals("/end")){//если от сервака летит /end - летим в finaly минуя алерт о разрыве соедениния(т.к. сами его прервали командой /енд)
                                 break;
                             }
-                        } else {
-                            textArea.appendText(msg + "\n");
+                            continue; //таким образом ушли от уровня вложенности else
                         }
+                        textArea.appendText(msg + "\n");
                     }
                 } catch (IOException e){
                     showAlert("Соединение с сервером разорвано"); //кидаем алерт что соедение с сервером разорвано
