@@ -1,18 +1,13 @@
 package com.geekbrains.client;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+
 import javafx.scene.layout.HBox;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -86,13 +81,13 @@ public class Controller implements Initializable {
     }
 
     public void linkCallbacks() {
-        Network.callOnException = args -> showAlert(args[0].toString());
-        Network.callOnCloseConnection = args -> setAuthentificated(false);
-        Network.callOnAuthentificated = args -> {
+        Network.setCallOnException(args -> showAlert(args[0].toString()));
+        Network.setCallOnCloseConnection(args -> setAuthentificated(false));
+        Network.setCallOnAuthentificated(args -> {
             setAuthentificated(true);
             nickname = args[0].toString();
-        };
-        Network.callOnMsgReceived = args -> {
+        });
+        Network.setCallOnMsgReceived(args -> {
             String msg = args[0].toString();
             if (msg.startsWith("/")) { //говорим что если летит что-то начинающиеся на / это команда
                 if (msg.startsWith("/clients ")) {
@@ -107,6 +102,6 @@ public class Controller implements Initializable {
             } else {
                 textArea.appendText(msg + "\n");
             }
-        };
+        });
     }
 }

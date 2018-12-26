@@ -9,11 +9,35 @@ public class Network {
     private static Socket socket;
     private static DataInputStream in;
     private static DataOutputStream out;
+    private static Callback callOnMsgReceived;
 
-    public static Callback callOnMsgReceived;
-    public static Callback callOnAuthentificated;
-    public static Callback callOnException;
-    public static Callback callOnCloseConnection;
+    static { // сказали что нет стандартной реализации
+        Callback empty = args -> {};
+        callOnMsgReceived = empty;
+        callOnAuthentificated = empty;
+        callOnCloseConnection = empty;
+        callOnException = empty;
+    }
+
+    public static void setCallOnMsgReceived(Callback callOnMsgReceived) {
+        Network.callOnMsgReceived = callOnMsgReceived;
+    }
+
+    public static void setCallOnAuthentificated(Callback callOnAuthentificated) {
+        Network.callOnAuthentificated = callOnAuthentificated;
+    }
+
+    public static void setCallOnException(Callback callOnException) {
+        Network.callOnException = callOnException;
+    }
+
+    public static void setCallOnCloseConnection(Callback callOnCloseConnection) {
+        Network.callOnCloseConnection = callOnCloseConnection;
+    }
+
+    private static Callback callOnAuthentificated;
+    private static Callback callOnException;
+    private static Callback callOnCloseConnection;
 
     public static void sendAuth(String login, String password) {
         try {

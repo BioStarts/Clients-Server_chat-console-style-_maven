@@ -83,4 +83,13 @@ public class Server {
         }
     }
 
+    /*public boolean isAuth(ClientHandler clientHandler){
+        for (ClientHandler o : clients){
+            if (o.equals(clientHandler)){
+                return true;
+            }
+        }
+        return false;
+    }*/
+
 }
