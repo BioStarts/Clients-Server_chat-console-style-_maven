@@ -5,23 +5,50 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
+import static java.lang.System.currentTimeMillis;
+
 public class Server {
     private Vector<ClientHandler> clients;
+    private Vector<ClientHandler> notAuthClients; //Отдельно заводим вектор для неавторизованных (всех) клиентов
 
     public AuthService getAuthService() {
         return authService;
     }
 
     private AuthService authService;
+    private final int DISCONNECTION_TIMEOUT = 30000;//временной интервал для чистки неавторизованных юзеров (раз в 30 секунд)
+
 
     public Server() {
         clients = new Vector<>();
+        notAuthClients = new Vector<>();//Инициализируем вектор для хранения всех юзеров неавторизованных
+        Thread checkThread = new Thread(() -> {//Запускаем поток предназначенный для проверки и чистки соединения с неавторизованными юзерами
+            try {
+                while (true) {
+                    Thread.sleep(DISCONNECTION_TIMEOUT); //тормоим поток на 30 секунд
+                    for (ClientHandler o : notAuthClients//бежим по вектору неавторизованных юзеров
+                    ) {
+                        if (o.getCurrentTime() > DISCONNECTION_TIMEOUT) {//если юзер неавторизованн более 30 секунд прерываем соединение(время юзера засекаем в
+                            // клиент хэндлере и геттером тянем сюда для сравнения)
+                            o.disconnect();
+                        }
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+        checkThread.setDaemon(true);
+        checkThread.start();
+
         authService = new SimpleAuthService();
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {
                 Socket socket = serverSocket.accept();
-                new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
+                notAuthClients.add(new ClientHandler(this, socket)); //Изначально добавляем всех новых клиентов в список неавторизованных юзеров(магия/актуализация списка ниже)
+                //new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
                 System.out.println("Подключился новый клиент");
             }
         } catch (IOException e) {
@@ -53,6 +80,7 @@ public class Server {
 
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
+        notAuthClients.remove(clientHandler);//Магия! При авторпизации юзера убираем его из списка неавторизованных клиентов
         broadcastClientsList();// обновляем рассылку клиентов при добавлении нового
     }
 

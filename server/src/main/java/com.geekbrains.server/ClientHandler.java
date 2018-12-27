@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.System.currentTimeMillis;
+
 public class ClientHandler {
 
     private String nickname;
@@ -13,28 +15,23 @@ public class ClientHandler {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+    private long currentTime;//Заводим поле для фиксации времени юзера, с момента попытки авторизации
 
     public String getNickname() {
         return nickname;
     }
 
+    public long getCurrentTime() {//делаем геттер чтобы на сервере можно было узнавать о времени активной работы юзера
+        return currentTimeMillis();
+    }
+
     public ClientHandler(Server server, Socket socket) {
         this.server = server;
         this.socket = socket;
+        this.currentTime = currentTimeMillis();//засекаем время работы юзера
         try {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-            new Thread(() -> {//новый поток в котором проверяем через некоторое время не занят ли ник - если не занят отключаем
-                try {
-                    Thread.sleep(120000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(nickname == null){
-                    System.out.println("отключили не нужного юзера");
-                    disconnect();
-                }
-            }).start();
             new Thread(() -> { // Слушает в отдельном потоке что присылает клиент
                 try {
                     while (true) { // ждем в цикле данные для аутентификации
@@ -108,4 +105,6 @@ public class ClientHandler {
             e.printStackTrace();
         }
     }
+
+
 }
