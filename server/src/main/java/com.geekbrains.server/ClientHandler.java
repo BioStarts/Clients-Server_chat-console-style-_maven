@@ -25,28 +25,32 @@ public class ClientHandler {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
             //AtomicBoolean activeClient = new AtomicBoolean(false); //*** маячок для отслеживания подключения клиента
+            new Thread(() -> {//***новый поток в котором проверяем через некоторое время не занят ли ник - если не занят отключаем
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(nickname == null){
+                    System.out.println("отключили не нужного юзера");
+                    disconnect();
+                }
+            }).start();
             new Thread(() -> { // Слушает в отдельном потоке что присылает клиент
                 try {
                     while (true) { // ждем в цикле данные для аутентификации
                         String msg = in.readUTF();
                         if (msg.startsWith("/auth ")) {
                             String[] tokens = msg.split("\\s");
+                            if(tokens.length != 3) {
+                                continue;
+                            }
                             String nick = server.getAuthService().getNicknameByLoginAndPassword(tokens[1], tokens[2]);
-                            /*new Thread(() -> {//***новый поток в котором проверяем через некоторое время не занят ли ник - если не занят отключаем
-                                try {
-                                    Thread.sleep(10000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                if(activeClient.get() == false){
-                                    System.out.println("отключили не нужного юзера");
-                                    disconnect();
-                                }
-                            });*/
                             if (nick != null && !server.isNickBusy(nick)) {
                                 sendMsg("/authok " + nick);
                                 nickname = nick;
                                 server.subscribe(this); // добавили в список рассылки(subscribe)
+
                             //***    activeClient.set(true);
                                 break;
                             }
