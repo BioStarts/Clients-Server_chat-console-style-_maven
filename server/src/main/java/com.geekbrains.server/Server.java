@@ -82,14 +82,4 @@ public class Server {
             o.sendMsg(out);
         }
     }
-
-    public boolean isAuth(ClientHandler clientHandler){
-        for (ClientHandler o : clients){
-            if (o.equals(clientHandler)){
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

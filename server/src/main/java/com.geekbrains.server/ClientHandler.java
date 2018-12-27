@@ -24,10 +24,9 @@ public class ClientHandler {
         try {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-            //AtomicBoolean activeClient = new AtomicBoolean(false); //*** маячок для отслеживания подключения клиента
-            new Thread(() -> {//***новый поток в котором проверяем через некоторое время не занят ли ник - если не занят отключаем
+            new Thread(() -> {//новый поток в котором проверяем через некоторое время не занят ли ник - если не занят отключаем
                 try {
-                    Thread.sleep(15000);
+                    Thread.sleep(120000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -42,7 +41,7 @@ public class ClientHandler {
                         String msg = in.readUTF();
                         if (msg.startsWith("/auth ")) {
                             String[] tokens = msg.split("\\s");
-                            if(tokens.length != 3) {
+                            if(tokens.length != 3) {//для того чтобы при отправке пользователем пустых полей логина или пароля сервак не крашился
                                 continue;
                             }
                             String nick = server.getAuthService().getNicknameByLoginAndPassword(tokens[1], tokens[2]);
@@ -50,8 +49,6 @@ public class ClientHandler {
                                 sendMsg("/authok " + nick);
                                 nickname = nick;
                                 server.subscribe(this); // добавили в список рассылки(subscribe)
-
-                            //***    activeClient.set(true);
                                 break;
                             }
                         }
