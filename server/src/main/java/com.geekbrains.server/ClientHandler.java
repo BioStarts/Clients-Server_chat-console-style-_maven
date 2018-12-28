@@ -22,7 +22,7 @@ public class ClientHandler {
     }
 
     public long getCurrentTime() {//делаем геттер чтобы на сервере можно было узнавать о времени активной работы юзера
-        return currentTimeMillis();
+        return currentTime;
     }
 
     public ClientHandler(Server server, Socket socket) {
