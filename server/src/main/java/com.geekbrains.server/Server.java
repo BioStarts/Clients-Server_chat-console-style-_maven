@@ -44,6 +44,8 @@ public class Server {
         checkThread.start();
 
         authService = new SimpleAuthService();
+        //authService = new DbaseAuthServise();
+        //***//
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {

@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.sql.SQLException;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -42,6 +42,7 @@ public class ClientHandler {
                                 continue;
                             }
                             String nick = server.getAuthService().getNicknameByLoginAndPassword(tokens[1], tokens[2]);
+                            //***//
                             if (nick != null && !server.isNickBusy(nick)) {
                                 sendMsg("/authok " + nick);
                                 nickname = nick;
@@ -66,7 +67,7 @@ public class ClientHandler {
                             System.out.println(msg);
                         }
                     }
-                } catch (IOException e) {
+                } catch (IOException | SQLException e) {
                     e.printStackTrace();
                 } finally {
                     disconnect();
