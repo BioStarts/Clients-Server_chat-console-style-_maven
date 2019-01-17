@@ -43,8 +43,8 @@ public class Server {
         checkThread.setDaemon(true);
         checkThread.start();
 
-        authService = new SimpleAuthService();
-        //authService = new DbaseAuthServise();
+        //authService = new SimpleAuthService();
+        authService = new DbaseAuthServise();
         //***//
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
@@ -79,6 +79,11 @@ public class Server {
             }
         }
         sender.sendMsg("Клиент " + reciverNick + " не найден");
+    }
+
+    //*** - для замены ника реализация метода
+    public void changeNick(String nick, String newnick) { // метод для рассылки приватных сообщений
+
     }
 
     public void subscribe(ClientHandler clientHandler) {

@@ -62,6 +62,13 @@ public class ClientHandler {
                                 String[] tokens = msg.split("\\s", 3); // разбиваем сообщение на 3 части по пробелу
                                 server.privateMsg(this, tokens[1], tokens[2]);
                             }
+                            //*** - ниже реалиовать вызов метода меняющего ник
+                            if (msg.startsWith("/с ")) { //начинаем проверку на приватное сообщение
+                                String[] tokens = msg.split("\\s", 3); // разбиваем сообщение на 3 части по пробелу
+                                //server.privateMsg(this, tokens[1], tokens[2]);
+                            }
+
+
                         } else {
                             server.broadcastMsg(nickname + ": " + msg);
                             System.out.println(msg);
