@@ -62,6 +62,18 @@ public class ClientHandler {
                                 String[] tokens = msg.split("\\s", 3); // разбиваем сообщение на 3 части по пробелу
                                 server.privateMsg(this, tokens[1], tokens[2]);
                             }
+                            //ниже реалиован вызов метода меняющего ник
+                            if (msg.startsWith("/ch ")) { //начинаем проверку запроса на изменение ника
+                                String[] tokens = msg.split("\\s", 3); // разбиваем сообщение на 3 части по пробелу
+                                if (nickname.equals(tokens[1])) {//проверям что ник запрашиваемого для смены ника и ник текушего юзера идентичны
+                                    server.broadcastMsg(nickname + ": " + "изменил ник на " + tokens[2]);//печатаем в чат сообщение о замене
+                                    nickname = tokens[2];// меняем ник клиентхандлера чтобы он обновился в списке юзеров(в методе вызываемом в сервере)
+                                    server.changeNick(tokens[1], tokens[2]);//передаем данные для смены
+                                }
+                                else server.broadcastMsg(nickname + ": " + msg);//печатаем сообщение в случае не соответствия ников
+                            }
+
+
                         } else {
                             server.broadcastMsg(nickname + ": " + msg);
                             System.out.println(msg);

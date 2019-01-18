@@ -3,6 +3,7 @@ package com.geekbrains.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.Vector;
 
 import static java.lang.System.currentTimeMillis;
@@ -43,8 +44,8 @@ public class Server {
         checkThread.setDaemon(true);
         checkThread.start();
 
-        authService = new SimpleAuthService();
-        //authService = new DbaseAuthServise();
+        //authService = new SimpleAuthService();
+        authService = new DbaseAuthServise();
         //***//
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
@@ -81,6 +82,12 @@ public class Server {
         sender.sendMsg("Клиент " + reciverNick + " не найден");
     }
 
+    //*** - для замены ника реализация метода
+    public void changeNick(String nick, String newnick) throws SQLException { // метод для рассылки приватных сообщений
+            DbaseAuthServise.updateUser(nick, newnick);//вызываем метод замены реализованный в датаБэйс классе
+            broadcastClientsList();//обновляем лист после замены ника
+    }
+
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
         notAuthClients.remove(clientHandler);//Магия! При авторпизации юзера убираем его из списка неавторизованных клиентов
@@ -92,9 +99,9 @@ public class Server {
         broadcastClientsList();// обновляем рассылку клиентов при выходе клиента из чата
     }
 
-    public boolean isNickBusy(String nickname){
-        for (ClientHandler o : clients){
-            if (o.getNickname().equals(nickname)){
+    public boolean isNickBusy(String nickname) {
+        for (ClientHandler o : clients) {
+            if (o.getNickname().equals(nickname)) {
                 return true;
             }
         }
