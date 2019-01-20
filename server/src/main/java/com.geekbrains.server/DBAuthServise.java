@@ -1,69 +1,20 @@
 package com.geekbrains.server;
 
-import java.sql.*;
 
 
-public class DbaseAuthServise implements AuthService {
+public class DBAuthServise implements AuthService {
 
-    private static Connection connection;
-    public static Statement stmt;
-    private static PreparedStatement psInsert;
 
-    public static void connect() throws ClassNotFoundException, SQLException { // открываем соединение для SQL
-        Class.forName("org.sqlite.JDBC");
-        connection = DriverManager.getConnection("jdbc:sqlite:main.db");
-        stmt = connection.createStatement();
-    }
-
-    public static void disconnect() {
-        try {
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public String getNicknameByLoginAndPassword(String login, String password) {
+        return SQLHandler.getNicknameByLoginAndPassword(login, password);
     }
 
     @Override
-    public String getNicknameByLoginAndPassword(String login, String password) throws SQLException {
-        try {
-            connect();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM users WHERE login = '" + login + "' AND password = '" + password + "'");
-            System.out.println("Поиск по БД произведен");
-            System.out.println("В БД найден пользователь: " + rs.getString("nickname"));
-            if (rs.next()){
-                return rs.getString("nickname");//ник вытащить запросом
-            }
-            rs.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            System.out.println("Соединение с БД закрыто");
-            disconnect();
-        }
-        return null;
+    public boolean changeNick(String nickname, String newNickname) {
+        return SQLHandler.changeNick(nickname, newNickname);
     }
-
-    public static void updateUser(String nowNick, String newNick) throws SQLException { //метод для замены ника
-        try {
-            connect();
-            System.out.println("Подключились к БД для смены ника");
-            String reNick = "UPDATE users SET nickname = '" + newNick + "' WHERE nickname = '" + nowNick + "' ;";
-            stmt.executeUpdate(reNick);
-            System.out.println("Ник изменен");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        finally {
-            disconnect();
-            System.out.println("Отключились от БД после смены ника");
-        }
-
-    }
+}
 
     /*
     public static void main(String[] args) {
@@ -161,5 +112,3 @@ public class DbaseAuthServise implements AuthService {
         stmt.executeUpdate("INSERT INTO users (login, password, nickname) VALUES ('lol2', 'lolo2', 'lol2)');");
     }*/
 
-
-}

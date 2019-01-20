@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 
 import java.net.URL;
@@ -29,6 +30,7 @@ public class Controller implements Initializable {
 
     private boolean authentificated;
     private String nickname;
+    private String login;
 
     public void setAuthentificated(boolean authentificated) {
         this.authentificated = authentificated;
@@ -69,6 +71,13 @@ public class Controller implements Initializable {
                 msgField.requestFocus();
                 msgField.selectEnd();
             }
+            if ((event.getButton() == MouseButton.SECONDARY)/* &(clientsList.getSelectionModel().getSelectedItem() == nickname)*/) {//на клик правой кнопки меняем ник
+                System.out.println(nickname);
+                System.out.println(clientsList.getSelectionModel().getSelectedItem());
+                msgField.setText("/ch ");
+                msgField.requestFocus();
+                msgField.selectEnd();
+            }
         });
         linkCallbacks();
     }
@@ -99,8 +108,15 @@ public class Controller implements Initializable {
                         }
                     });
                 }
+                if (msg.startsWith("/yournickis ")) { //обновили ник после его изменения
+                    nickname = msg.split("\\s")[1];
+                }
+                if (msg.startsWith("/loginok ")){ //получили логин после авторизации
+                    login = msg.split("\\s")[1];
+                }
             } else {
                 textArea.appendText(msg + "\n");
+                FileClientChatLog.newMessageLog(login, msg);// передаю логин и сообщение в класс хранящий историю клиента
             }
         });
     }

@@ -23,6 +23,12 @@ public class Server {
     public Server() {
         clients = new Vector<>();
         notAuthClients = new Vector<>();//Инициализируем вектор для хранения всех юзеров неавторизованных
+
+        authService = new DBAuthServise();// создаем класс для работы с БД
+        if (!SQLHandler.connect()){// коннектимся к базе
+            throw new RuntimeException("Не удалось подключиться к БД");
+        }
+
         Thread checkThread = new Thread(() -> {//Запускаем поток предназначенный для проверки и чистки соединения с неавторизованными юзерами
             try {
                 while (true) {
@@ -44,9 +50,6 @@ public class Server {
         checkThread.setDaemon(true);
         checkThread.start();
 
-        //authService = new SimpleAuthService();
-        authService = new DbaseAuthServise();
-        //***//
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {
@@ -57,8 +60,11 @@ public class Server {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            System.out.println("Сервер завершил свою работу");
+            SQLHandler.disconnect();//отключились от БД, закрыли соединение
         }
-        System.out.println("Сервер завершил свою работу");
+
     }
 
     public void broadcastMsg(String msg) { // метод для рассылки по всей коллекции
@@ -80,12 +86,6 @@ public class Server {
             }
         }
         sender.sendMsg("Клиент " + reciverNick + " не найден");
-    }
-
-    //*** - для замены ника реализация метода
-    public void changeNick(String nick, String newnick) throws SQLException { // метод для рассылки приватных сообщений
-            DbaseAuthServise.updateUser(nick, newnick);//вызываем метод замены реализованный в датаБэйс классе
-            broadcastClientsList();//обновляем лист после замены ника
     }
 
     public void subscribe(ClientHandler clientHandler) {

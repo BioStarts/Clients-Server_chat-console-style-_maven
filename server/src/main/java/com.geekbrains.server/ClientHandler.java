@@ -38,13 +38,25 @@ public class ClientHandler {
                         String msg = in.readUTF();
                         if (msg.startsWith("/auth ")) {
                             String[] tokens = msg.split("\\s");
-                            if(tokens.length != 3) {//для того чтобы при отправке пользователем пустых полей логина или пароля сервак не крашился
+                            if (tokens.length != 3) {//для того чтобы при отправке пользователем пустых полей логина или пароля сервак не крашился
                                 continue;
                             }
                             String nick = server.getAuthService().getNicknameByLoginAndPassword(tokens[1], tokens[2]);
                             //***//
                             if (nick != null && !server.isNickBusy(nick)) {
                                 sendMsg("/authok " + nick);
+                                sendMsg("/loginok " + tokens[1]);//передаем логин на клиента после авторизации
+                                //*** ниже реализация отправки последних десяти сообщений в чат толькочто авторизованного клиента
+                                if (FileStoryChat.lastMsg().size() > 10) {
+                                    for (int i = 10; i > 0; i--) {
+                                        sendMsg(FileStoryChat.lastMsg().get(FileStoryChat.lastMsg().size()- i));
+                                    }
+                                } else {
+                                    for (int i = 0; i < FileStoryChat.lastMsg().size(); i++) {
+                                        sendMsg(FileStoryChat.lastMsg().get(i));
+                                    }
+                                }
+                                //***
                                 nickname = nick;
                                 server.subscribe(this); // добавили в список рассылки(subscribe)
                                 break;
@@ -64,22 +76,27 @@ public class ClientHandler {
                             }
                             //ниже реалиован вызов метода меняющего ник
                             if (msg.startsWith("/ch ")) { //начинаем проверку запроса на изменение ника
-                                String[] tokens = msg.split("\\s", 3); // разбиваем сообщение на 3 части по пробелу
-                                if (nickname.equals(tokens[1])) {//проверям что ник запрашиваемого для смены ника и ник текушего юзера идентичны
-                                    server.broadcastMsg(nickname + ": " + "изменил ник на " + tokens[2]);//печатаем в чат сообщение о замене
-                                    nickname = tokens[2];// меняем ник клиентхандлера чтобы он обновился в списке юзеров(в методе вызываемом в сервере)
-                                    server.changeNick(tokens[1], tokens[2]);//передаем данные для смены
+                                String[] tokens = msg.split("\\s", 2); // разбиваем сообщение на 2 части по пробелу
+                                if (tokens[1].contains(" ")) {
+                                    sendMsg("Ник не может содержать пробелов.");
+                                    continue;
                                 }
-                                else server.broadcastMsg(nickname + ": " + msg);//печатаем сообщение в случае не соответствия ников
+                                if (server.getAuthService().changeNick(this.nickname, tokens[1])) {
+                                    sendMsg("/yournickis " + tokens[1]);//служебная команда которая позволяет серваку поменять ник у клиента
+                                    sendMsg("Ваш ник изменен на: " + tokens[1]);
+                                    this.nickname = tokens[1];
+                                    server.broadcastClientsList();
+                                } else {
+                                    sendMsg("Не удалось изменить ник. Такой ник " + tokens[1] + " уже существует.");
+                                }
                             }
-
-
                         } else {
                             server.broadcastMsg(nickname + ": " + msg);
+                            FileStoryChat.newMessageAllClientsLog(nickname + ": " + msg);// отправляем общее сообщение в историю - лог файл
                             System.out.println(msg);
                         }
                     }
-                } catch (IOException | SQLException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
                     disconnect();
