@@ -22,3 +22,13 @@ asdasdasd: 2
 asdasdasd: 3
 Ваш ник изменен на: zaz
 Не удалось изменить ник. Такой ник lol уже существует.
+asdasdasd: asfd
+asdasdasd: asf
+asdasdasd: dsafasdfsdafasdf
+asdasdasd: asdfasdfsadf
+asdasdasd: asfsf
+asdasdasd: asfsdafsdas
+asdasdasd: 1
+asdasdasd: 2
+asdasdasd: 3
+lol: fdgfgdfg

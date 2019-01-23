@@ -48,6 +48,77 @@ public class FileStoryChat {
         }
         return lastMsg;
     }
+
+    //-----------------------------//
+    static Object mon = new Object();
+    static  volatile char currentLater = 'A';
+
+    public static void main(String[] args) {
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 5; i++) {
+                    synchronized (mon) {
+                        while (currentLater != 'A') {
+                            try {
+                                mon.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        System.out.println('A');
+                        currentLater = 'B';
+                        mon.notify();
+                    }
+                }
+            }
+        }){
+        }.start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 5; i++) {
+                    synchronized (mon) {
+                        while (currentLater != 'B') {
+                            try {
+                                mon.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        System.out.println('B');
+                        currentLater = 'C';
+                        mon.notify();
+                    }
+                }
+            }
+        }){
+        }.start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 5; i++) {
+                    synchronized (mon) {
+                        while (currentLater != 'C') {
+                            try {
+                                mon.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        System.out.println('C');
+                        currentLater = 'A';
+                        mon.notify();
+                    }
+                }
+            }
+        }){
+        }.start();
+    }
 }
 
 /*public static void main(String[] args) {
