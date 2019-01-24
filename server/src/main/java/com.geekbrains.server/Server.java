@@ -3,10 +3,10 @@ package com.geekbrains.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.Vector;
 
 import static java.lang.System.currentTimeMillis;
+import static java.lang.System.out;
 
 public class Server {
     private Vector<ClientHandler> clients;
