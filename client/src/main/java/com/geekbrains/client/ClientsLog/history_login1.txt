@@ -118,3 +118,27 @@ zaz: asdasdasdasd
 lol: fsdfsedfsd
 lol: sdfsdfsdf
 lol: sdfsdfsdfsdf
+lol: ++++
+lol: 54564654646
+lol: 656+5+5+5
+nick3: sdfsdfsdf
+nick3: sdfsdfsf
+zaz: sadsadasd
+zaz: asdasdasdasd
+lol: fsdfsedfsd
+lol: sdfsdfsdf
+lol: sdfsdfsdfsdf
+lol: 656+5+5+5
+nick3: sdfsdfsdf
+nick3: sdfsdfsf
+zaz: sadsadasd
+zaz: asdasdasdasd
+lol: fsdfsedfsd
+lol: sdfsdfsdf
+lol: sdfsdfsdfsdf
+nick3: asdasdasd
+nick3: asdasdasd
+lol: asdasdasdasd
+lol: asdasdasd
+для nick3: asdasdasd
+для nick3: asdasdasd

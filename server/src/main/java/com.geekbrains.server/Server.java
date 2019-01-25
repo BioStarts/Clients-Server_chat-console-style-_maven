@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static java.lang.System.currentTimeMillis;
 import static java.lang.System.out;
@@ -11,20 +13,18 @@ import static java.lang.System.out;
 public class Server {
     private Vector<ClientHandler> clients;
     private Vector<ClientHandler> notAuthClients; //Отдельно заводим вектор для неавторизованных (всех) клиентов
-
     public AuthService getAuthService() {
         return authService;
     }
-
     private AuthService authService;
     private final int DISCONNECTION_TIMEOUT = 30000;//временной интервал для чистки неавторизованных юзеров (если больше 30 секунд - определенный клиентхендлер не авторизован - дисконнектим)
-
+    private ExecutorService executorService;
 
     public Server() {
         clients = new Vector<>();
         notAuthClients = new Vector<>();//Инициализируем вектор для хранения всех юзеров неавторизованных
-
         authService = new DBAuthServise();// создаем класс для работы с БД
+        executorService = Executors.newCachedThreadPool();
         if (!SQLHandler.connect()){// коннектимся к базе
             throw new RuntimeException("Не удалось подключиться к БД");
         }
@@ -54,7 +54,7 @@ public class Server {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {
                 Socket socket = serverSocket.accept();
-                notAuthClients.add(new ClientHandler(this, socket)); //Изначально добавляем всех новых клиентов в список неавторизованных юзеров(магия/актуализация списка ниже)
+                notAuthClients.add(new ClientHandler(this, socket, executorService)); //Изначально добавляем всех новых клиентов в список неавторизованных юзеров(магия/актуализация списка ниже)
                 //new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
                 System.out.println("Подключился новый клиент");
             }
@@ -63,6 +63,7 @@ public class Server {
         } finally {
             System.out.println("Сервер завершил свою работу");
             SQLHandler.disconnect();//отключились от БД, закрыли соединение
+            executorService.shutdown();
         }
 
     }
