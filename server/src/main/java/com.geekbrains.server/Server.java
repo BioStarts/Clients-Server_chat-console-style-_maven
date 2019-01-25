@@ -54,9 +54,14 @@ public class Server {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {
                 Socket socket = serverSocket.accept();
-                notAuthClients.add(new ClientHandler(this, socket, executorService)); //Изначально добавляем всех новых клиентов в список неавторизованных юзеров(магия/актуализация списка ниже)
-                //new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
-                System.out.println("Подключился новый клиент");
+                try {//перехватывает ошибки от клиентхандлера и обрабатываем их при создании
+                    notAuthClients.add(new ClientHandler(this, socket, executorService)); //Изначально добавляем всех новых клиентов в список неавторизованных юзеров(магия/актуализация списка ниже)
+                    //new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
+                    System.out.println("Подключился новый клиент");
+                }catch (IOException e){
+                    System.out.println("По какой-то причине не удаось создать обработчик клиента");
+                }
+
             }
         } catch (IOException e) {
             e.printStackTrace();

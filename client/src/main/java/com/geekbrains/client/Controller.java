@@ -42,6 +42,8 @@ public class Controller implements Initializable {
         clientsList.setManaged(authentificated);
         if (!authentificated) {
             nickname = ""; // обнуляем ник клиента при разрыве связи
+            History.stop();//останавливаем работу с файлом при разрыве соединения
+            textArea.clear();//чистим историю с окна при разлогине юзера
         }
     }
 
@@ -95,6 +97,10 @@ public class Controller implements Initializable {
         Network.setCallOnAuthentificated(args -> {
             setAuthentificated(true);
             nickname = args[0].toString();
+            login = args[1].toString();
+            textArea.clear();
+            textArea.appendText(History.getLast100LinesOfHistory(login));//Печатаем крайние 100 сообщений из истори клиента при авторизации
+            History.start(login);//открываем соединение с файлом
         });
         Network.setCallOnMsgReceived(args -> {
             String msg = args[0].toString();
@@ -111,12 +117,13 @@ public class Controller implements Initializable {
                 if (msg.startsWith("/yournickis ")) { //обновили ник после его изменения
                     nickname = msg.split("\\s")[1];
                 }
-                if (msg.startsWith("/loginok ")){ //получили логин после авторизации
+                /*if (msg.startsWith("/loginok ")){ //получили логин после авторизации
                     login = msg.split("\\s")[1];
-                }
+                }*/
             } else {
                 textArea.appendText(msg + "\n");
-                FileClientChatLog.newMessageLog(login, msg);// передаю логин и сообщение в класс хранящий историю клиента
+                History.writeLine(msg);// передаю сообщение в класс хранящий историю клиента
+                //History.newMessageLog(login, msg);// передаю логин и сообщение в класс хранящий историю клиента
             }
         });
     }
