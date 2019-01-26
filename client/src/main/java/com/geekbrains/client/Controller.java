@@ -73,7 +73,7 @@ public class Controller implements Initializable {
                 msgField.requestFocus();
                 msgField.selectEnd();
             }
-            if ((event.getButton() == MouseButton.SECONDARY) & (clientsList.getSelectionModel().getSelectedItem() == nickname)) {//на клик правой кнопки меняем ник
+            if ((event.getButton() == MouseButton.SECONDARY) & (clientsList.getSelectionModel().getSelectedItem().equals(nickname))) {//на клик правой кнопки меняем ник
                 System.out.println(nickname);
                 System.out.println(clientsList.getSelectionModel().getSelectedItem());
                 msgField.setText("/ch ");
