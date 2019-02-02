@@ -6,11 +6,15 @@ import java.net.Socket;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static java.lang.System.currentTimeMillis;
-import static java.lang.System.out;
+
 
 public class Server {
+    public static final Logger logger = Logger.getLogger(Server.class.getName());//создаем логгер
+
     private Vector<ClientHandler> clients;
     private Vector<ClientHandler> notAuthClients; //Отдельно заводим вектор для неавторизованных (всех) клиентов
     public AuthService getAuthService() {
@@ -64,7 +68,8 @@ public class Server {
 
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Сервер не запустился", e);// логгируем если сервер не запустился
+            //e.printStackTrace();
         } finally {
             System.out.println("Сервер завершил свою работу");
             SQLHandler.disconnect();//отключились от БД, закрыли соединение
