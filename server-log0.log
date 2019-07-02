@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2019-02-02T12:43:45</date>
+  <millis>1549100625773</millis>
+  <sequence>0</sequence>
+  <logger>com.geekbrains.server.Server</logger>
+  <level>SEVERE</level>
+  <class>com.geekbrains.server.Server</class>
+  <method>&lt;init&gt;</method>
+  <thread>1</thread>
+  <message>Сервер не запустился</message>
+  <exception>
+    <message>java.net.BindException: Address already in use: JVM_Bind</message>
+    <frame>
+      <class>java.net.DualStackPlainSocketImpl</class>
+      <method>bind0</method>
+    </frame>
+    <frame>
+      <class>java.net.DualStackPlainSocketImpl</class>
+      <method>socketBind</method>
+      <line>106</line>
+    </frame>
+    <frame>
+      <class>java.net.AbstractPlainSocketImpl</class>
+      <method>bind</method>
+      <line>387</line>
+    </frame>
+    <frame>
+      <class>java.net.PlainSocketImpl</class>
+      <method>bind</method>
+      <line>190</line>
+    </frame>
+    <frame>
+      <class>java.net.ServerSocket</class>
+      <method>bind</method>
+      <line>375</line>
+    </frame>
+    <frame>
+      <class>java.net.ServerSocket</class>
+      <method>&lt;init&gt;</method>
+      <line>237</line>
+    </frame>
+    <frame>
+      <class>java.net.ServerSocket</class>
+      <method>&lt;init&gt;</method>
+      <line>128</line>
+    </frame>
+    <frame>
+      <class>com.geekbrains.server.Server</class>
+      <method>&lt;init&gt;</method>
+      <line>57</line>
+    </frame>
+    <frame>
+      <class>com.geekbrains.server.MainServer</class>
+      <method>main</method>
+      <line>15</line>
+    </frame>
+  </exception>
+</record>
+</log>
+фев 02, 2019 12:46:59 PM com.geekbrains.server.Server <init>
+SEVERE: Сервер не запустился
+java.net.BindException: Address already in use: JVM_Bind
+	at java.net.DualStackPlainSocketImpl.bind0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketBind(DualStackPlainSocketImpl.java:106)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:387)
+	at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:190)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at com.geekbrains.server.Server.<init>(Server.java:57)
+	at com.geekbrains.server.MainServer.main(MainServer.java:19)
+

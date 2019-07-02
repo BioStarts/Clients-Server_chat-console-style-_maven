@@ -60,7 +60,8 @@ public class Network {
                     while (true) {//ждем потдверждения от сервака что мы ок, т.е. есть в базе (квазитокен)
                         String msg = in.readUTF();
                         if (msg.startsWith("/authok ")) {
-                            callOnAuthentificated.callback(msg.split("\\s")[1]);
+                            String[] tokens = msg.split("\\s");
+                            callOnAuthentificated.callback(tokens[1], tokens[2]); // из полученного от сервера подтверждения об авторизации вырезаем ник и логин
                             break;
                         }
                     }

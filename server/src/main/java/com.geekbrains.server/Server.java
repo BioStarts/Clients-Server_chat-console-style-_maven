@@ -4,24 +4,35 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static java.lang.System.currentTimeMillis;
 
+
 public class Server {
+    public static final Logger logger = Logger.getLogger(Server.class.getName());//создаем логгер
+
     private Vector<ClientHandler> clients;
     private Vector<ClientHandler> notAuthClients; //Отдельно заводим вектор для неавторизованных (всех) клиентов
-
     public AuthService getAuthService() {
         return authService;
     }
-
     private AuthService authService;
     private final int DISCONNECTION_TIMEOUT = 30000;//временной интервал для чистки неавторизованных юзеров (если больше 30 секунд - определенный клиентхендлер не авторизован - дисконнектим)
-
+    private ExecutorService executorService;
 
     public Server() {
         clients = new Vector<>();
         notAuthClients = new Vector<>();//Инициализируем вектор для хранения всех юзеров неавторизованных
+        authService = new DBAuthServise();// создаем класс для работы с БД
+        executorService = Executors.newCachedThreadPool();
+        if (!SQLHandler.connect()){// коннектимся к базе
+            throw new RuntimeException("Не удалось подключиться к БД");
+        }
+
         Thread checkThread = new Thread(() -> {//Запускаем поток предназначенный для проверки и чистки соединения с неавторизованными юзерами
             try {
                 while (true) {
@@ -43,19 +54,28 @@ public class Server {
         checkThread.setDaemon(true);
         checkThread.start();
 
-        authService = new SimpleAuthService();
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {
                 Socket socket = serverSocket.accept();
-                notAuthClients.add(new ClientHandler(this, socket)); //Изначально добавляем всех новых клиентов в список неавторизованных юзеров(магия/актуализация списка ниже)
-                //new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
-                System.out.println("Подключился новый клиент");
+                try {//перехватывает ошибки от клиентхандлера и обрабатываем их при создании
+                    notAuthClients.add(new ClientHandler(this, socket, executorService)); //Изначально добавляем всех новых клиентов в список неавторизованных юзеров(магия/актуализация списка ниже)
+                    //new ClientHandler(this, socket); //отдали в клиентхендлер при создании ссылку на себя (для рассылки broadcastMsg) и сокет (для соединения)
+                    System.out.println("Подключился новый клиент");
+                }catch (IOException e){
+                    System.out.println("По какой-то причине не удаось создать обработчик клиента");
+                }
+
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Сервер не запустился", e);// логгируем если сервер не запустился
+            //e.printStackTrace();
+        } finally {
+            System.out.println("Сервер завершил свою работу");
+            SQLHandler.disconnect();//отключились от БД, закрыли соединение
+            executorService.shutdown();
         }
-        System.out.println("Сервер завершил свою работу");
+
     }
 
     public void broadcastMsg(String msg) { // метод для рассылки по всей коллекции
@@ -90,9 +110,9 @@ public class Server {
         broadcastClientsList();// обновляем рассылку клиентов при выходе клиента из чата
     }
 
-    public boolean isNickBusy(String nickname){
-        for (ClientHandler o : clients){
-            if (o.getNickname().equals(nickname)){
+    public boolean isNickBusy(String nickname) {
+        for (ClientHandler o : clients) {
+            if (o.getNickname().equals(nickname)) {
                 return true;
             }
         }
